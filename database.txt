@@ -1,0 +1,5 @@
+table products 
+    id          AUTO_INCREMENT PRIMARY KEY
+    title       string
+    image       string
+    description string

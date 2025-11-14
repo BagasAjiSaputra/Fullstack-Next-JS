@@ -1,26 +1,37 @@
 "use client";
 import { useState } from "react";
+import TableCRUD from "@/components/ui/Table";
 
 export default function DashboardPage() {
-    const [image, setImage] = useState("");
+    // const [image, setImage] = useState("");
+
+    const [file, setFile] = useState<File | null>(null);
     const [title, setTitle] = useState("");
     const [desc, setDesc] = useState("");
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        await fetch("/api/productsdb", {
+        if (!file || !title || !desc) {
+            alert("Midding Fields");
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append("image", file);
+        formData.append("title", title);
+        formData.append("description", desc);
+
+        const res = await fetch("/api/productsdb", {
             method: "POST",
-            body: JSON.stringify({
-                image,
-                title,
-                description : desc,
-            }),
+            body: formData,
         });
 
-        alert("Product Added !");
+        const data = await res.json();
+        alert(data.message);
+        // alert("Product Added !");
 
-        setImage("");
+        setFile(null);
         setTitle("");
         setDesc("");
     };
@@ -44,18 +55,9 @@ export default function DashboardPage() {
                         />
 
                         {/* Image */}
-                        <input type="text"
-                            value={image}
-                            onChange={(e) => {
-                                const val = e.target.value;
-
-                                if (!val.startsWith("/")) {
-                                    setImage("/" + val);
-                                } else {
-                                    setImage(val);
-                                }
-
-                            }}
+                        <input type="file"
+                            accept="image/*"
+                            onChange={(e) => e.target.files && setFile(e.target.files[0])}
                             placeholder="Image Product"
                             className="p-2 outline-none border border-gray-500"
                         />
@@ -71,11 +73,13 @@ export default function DashboardPage() {
                         />
 
                         <button type="submit" className="bg-green-300 text-green-700 px-4 py-2 hover:bg-green-400">
-                            Add 
+                            Add
                         </button>
                     </form>
                 </div>
             </main>
+
+            <TableCRUD />
         </>
     )
 }
