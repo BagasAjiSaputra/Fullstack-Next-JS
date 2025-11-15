@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import TableCRUD from "@/components/ui/Table";
+import TableView from "@/components/ui/Table";
 
 export default function DashboardPage() {
     // const [image, setImage] = useState("");
@@ -38,48 +38,54 @@ export default function DashboardPage() {
 
     return (
         <>
-            <main className=" w-full p-4 border">
-                <div className="flex flex-col">
-                    <h1>Add Products</h1>
+            <main className="w-full p-4 sm:p-8">
+                <div className="max-w-xl mx-auto flex flex-col gap-6">
 
-                    <form onSubmit={(handleSubmit)} className="flex gap-2">
+                    <h1 className="text-2xl font-semibold text-gray-800">Add Products</h1>
 
+                    <form
+                        onSubmit={handleSubmit}
+                        className="flex flex-col gap-4 bg-white p-6 rounded-2xl shadow-sm border border-gray-100"
+                    >
                         {/* Title */}
-                        <input type="text"
+                        <input
+                            type="text"
                             value={title}
-                            onChange={(e) => {
-                                setTitle(e.target.value);
-                            }}
+                            onChange={(e) => setTitle(e.target.value)}
                             placeholder="Product Name"
-                            className="p-2 outline-none border border-gray-500"
+                            className="w-full p-3 rounded-xl border border-gray-300 focus:border-gray-500 focus:ring-2 focus:ring-gray-200 transition"
                         />
 
                         {/* Image */}
-                        <input type="file"
+                        <input
+                            type="file"
                             accept="image/*"
                             onChange={(e) => e.target.files && setFile(e.target.files[0])}
-                            placeholder="Image Product"
-                            className="p-2 outline-none border border-gray-500"
+                            className="w-full p-3 rounded-xl border border-gray-300 bg-white focus:border-gray-500 focus:ring-2 focus:ring-gray-200 transition"
                         />
 
                         {/* Desc */}
-                        <input type="text"
+                        <input
+                            type="text"
                             value={desc}
-                            onChange={(e) => {
-                                setDesc(e.target.value);
-                            }}
-                            placeholder="Product Desc"
-                            className="p-2 outline-none border border-gray-500"
+                            onChange={(e) => setDesc(e.target.value)}
+                            placeholder="Product Description"
+                            className="w-full p-3 rounded-xl border border-gray-300 focus:border-gray-500 focus:ring-2 focus:ring-gray-200 transition"
                         />
 
-                        <button type="submit" className="bg-green-300 text-green-700 px-4 py-2 hover:bg-green-400">
+                        <button
+                            type="submit"
+                            className="w-full bg-gray-900 text-white py-3 rounded-xl hover:bg-gray-700 transition font-medium"
+                        >
                             Add
                         </button>
                     </form>
+
                 </div>
             </main>
 
-            <TableCRUD />
+
+            <TableView />
         </>
     )
 }
