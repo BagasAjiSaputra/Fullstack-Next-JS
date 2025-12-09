@@ -1,46 +1,46 @@
-"use client";
-import { useState } from "react";
-import TableView from "@/components/ui/Table";
+"use client"
 
-export default function DashboardPage() {
-    
-    // const [image, setImage] = useState("");
+import { useState } from "react"
+import TableView from "@/components/ui/Table"
+import LogoutButton from "../dashboards/Logout"
 
-    const [file, setFile] = useState<File | null>(null);
-    const [title, setTitle] = useState("");
-    const [desc, setDesc] = useState("");
+export default function DashboardClient() {
+  const [file, setFile] = useState<File | null>(null)
+  const [title, setTitle] = useState("")
+  const [desc, setDesc] = useState("")
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
 
-        if (!file || !title || !desc) {
-            alert("Midding Fields");
-            return;
-        }
+    if (!file || !title || !desc) {
+      alert("Missing fields")
+      return
+    }
 
-        const formData = new FormData();
-        formData.append("image", file);
-        formData.append("title", title);
-        formData.append("description", desc);
+    const formData = new FormData()
+    formData.append("image", file)
+    formData.append("title", title)
+    formData.append("description", desc)
 
-        const res = await fetch("/api/productsdb", {
-            method: "POST",
-            body: formData,
-        });
+    const res = await fetch("/api/productsdb", {
+      method: "POST",
+      body: formData
+    })
 
-        const data = await res.json();
-        alert(data.message);
-        // alert("Product Added !");
+    const data = await res.json()
+    alert(data.message)
 
-        setFile(null);
-        setTitle("");
-        setDesc("");
-    };
+    setFile(null)
+    setTitle("")
+    setDesc("")
+  }
 
-    return (
-        <>
-            <main className="w-full p-4 sm:p-8">
-                <div className="max-w-xl mx-auto flex flex-col gap-6">
+  return (
+    <>
+    < LogoutButton />
+      {/* UI LU TETAP SAMA */}
+      <main className="w-full p-4 sm:p-8">
+        <div className="max-w-xl mx-auto flex flex-col gap-6">
 
                     <h1 className="text-2xl font-semibold text-gray-800">Add Products</h1>
 
@@ -83,10 +83,9 @@ export default function DashboardPage() {
                     </form>
 
                 </div>
-            </main>
+      </main>
 
-
-            <TableView />
-        </>
-    )
+      <TableView />
+    </>
+  )
 }

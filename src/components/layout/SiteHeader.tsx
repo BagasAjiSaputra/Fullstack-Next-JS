@@ -9,7 +9,7 @@ export default function SiteHeader() {
 
   const nav = [
     { name: "Home", path: "/" },
-    { name: "Dashboard", path: "/dashboard" },
+    { name: "Dashboard", path: "/dashboards" },
   ];
 
   return (
