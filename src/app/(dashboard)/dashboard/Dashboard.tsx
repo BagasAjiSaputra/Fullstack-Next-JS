@@ -1,16 +1,13 @@
 "use client"
 
 import TableView from "./components/Table"
-import LogoutButton from "./components/Logout"
 import InputView from "./components/Input"
 
 export default function DashboardClient() {
 
   return (
     <>
-      <LogoutButton />
       <TableView />
-      <InputView />
     </>
   )
 }

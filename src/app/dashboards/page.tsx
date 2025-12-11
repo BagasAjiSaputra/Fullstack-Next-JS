@@ -10,10 +10,12 @@ export default async function DashboardPage() {
   if (!session) redirect("/login")
 
   return (
-<>
-<p>Welcome {session.user?.email}</p>
-      <p>Welcome {session.user?.role}</p>
-<DashboardClient />
-</>
-)
+    <>
+      <div className="border">
+        <p>Welcome {session.user?.email}</p>
+        <p>Welcome {session.user?.role}</p>
+        <DashboardClient />
+      </div>
+    </>
+  )
 }

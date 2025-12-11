@@ -1,92 +1,27 @@
-"use client";
-import { useState } from "react";
-import TableView from "@/components/ui/Table";
+import { getServerSession } from "next-auth"
+import { authOptions } from "@/lib/auth"
+import { redirect } from "next/navigation"
+import DashboardClient from "./Dashboard"
 
-export default function DashboardPage() {
-    
-    // const [image, setImage] = useState("");
+export default async function DashboardPage() {
+  const session = await getServerSession(authOptions)
 
-    const [file, setFile] = useState<File | null>(null);
-    const [title, setTitle] = useState("");
-    const [desc, setDesc] = useState("");
+  if (!session) redirect("/login")
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
+  return (
+    <div
+      className="w-full p-6"
+    >
+      {/* Welcome Card */}
+      <div className="bg-white shadow-sm rounded-2xl p-6 mb-6">
+        <h1 className="text-2xl font-semibold mb-2">
+          Guten Tag グーテンタグ <span className="text-blue-600">{session.user?.name || session.user?.email}</span>
+        </h1>
 
-        if (!file || !title || !desc) {
-            alert("Midding Fields");
-            return;
-        }
-
-        const formData = new FormData();
-        formData.append("image", file);
-        formData.append("title", title);
-        formData.append("description", desc);
-
-        const res = await fetch("/api/productsdb", {
-            method: "POST",
-            body: formData,
-        });
-
-        const data = await res.json();
-        alert(data.message);
-        // alert("Product Added !");
-
-        setFile(null);
-        setTitle("");
-        setDesc("");
-    };
-
-    return (
-        <>
-            <main className="w-full p-4 sm:p-8">
-                <div className="max-w-xl mx-auto flex flex-col gap-6">
-
-                    <h1 className="text-2xl font-semibold text-gray-800">Add Products</h1>
-
-                    <form
-                        onSubmit={handleSubmit}
-                        className="flex flex-col gap-4 bg-white p-6 rounded-2xl shadow-sm border border-gray-100"
-                    >
-                        {/* Title */}
-                        <input
-                            type="text"
-                            value={title}
-                            onChange={(e) => setTitle(e.target.value)}
-                            placeholder="Product Name"
-                            className="w-full p-3 rounded-xl border border-gray-300 focus:border-gray-500 focus:ring-2 focus:ring-gray-200 transition"
-                        />
-
-                        {/* Image */}
-                        <input
-                            type="file"
-                            accept="image/*"
-                            onChange={(e) => e.target.files && setFile(e.target.files[0])}
-                            className="w-full p-3 rounded-xl border border-gray-300 bg-white focus:border-gray-500 focus:ring-2 focus:ring-gray-200 transition"
-                        />
-
-                        {/* Desc */}
-                        <input
-                            type="text"
-                            value={desc}
-                            onChange={(e) => setDesc(e.target.value)}
-                            placeholder="Product Description"
-                            className="w-full p-3 rounded-xl border border-gray-300 focus:border-gray-500 focus:ring-2 focus:ring-gray-200 transition"
-                        />
-
-                        <button
-                            type="submit"
-                            className="w-full bg-gray-900 text-white py-3 rounded-xl hover:bg-gray-700 transition font-medium"
-                        >
-                            Add
-                        </button>
-                    </form>
-
-                </div>
-            </main>
-
-
-            <TableView />
-        </>
-    )
+        {/* <p className="text-gray-500 text-sm">
+          Role: <span className="font-medium">{session.user?.role}</span>
+        </p> */}
+      </div>
+    </div>
+  )
 }

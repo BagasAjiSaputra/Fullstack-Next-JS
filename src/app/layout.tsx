@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Ubuntu } from "next/font/google";
 import "./globals.css";
+import { Toaster } from "react-hot-toast";
 
 const ubuntu = Ubuntu({
   subsets: ["latin"],
@@ -22,6 +23,16 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${ubuntu.variable} font-sans antialiased`}>
         {children}
+        <Toaster
+        position="top-center"
+        toastOptions={{
+          className:
+            "border border-gray-300 shadow-lg rounded-xl bg-white dark:bg-neutral-900 ", // ← ini kuncinya!
+          style: { fontSize: "18px", fontWeight: 400, color: "#1f2937" },
+          success: { style: { color: "#059669" } },
+          error: { style: { color: "#dc2626" } },
+        }}
+      />
       </body>
     </html>
   );

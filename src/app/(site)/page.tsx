@@ -1,4 +1,4 @@
-import CardList from "@/components/ui/CardList"
+import CardList from "./components/Card"
 
 export default function SitePage() {
 

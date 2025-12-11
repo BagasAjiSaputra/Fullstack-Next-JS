@@ -1,10 +1,11 @@
 import bcrypt from "bcryptjs"
-import db from "@/lib/db"
 import { NextResponse } from "next/server"
+import { supabaseAdmin } from "@/lib/supabase"
 
 export async function POST(req: Request) {
   const { email, password, name } = await req.json()
 
+  /* ================= VALIDATION ================= */
   if (!email || !password || !name) {
     return NextResponse.json(
       { message: "Missing fields" },
@@ -12,27 +13,37 @@ export async function POST(req: Request) {
     )
   }
 
-  // ✅ cek email
-  const [existing]: any = await db.query(
-    "SELECT id FROM users WHERE email = ?",
-    [email]
-  )
+  /* ================= CEK EMAIL ================= */
+  const { data: existingUser } = await supabaseAdmin
+    .from("users")
+    .select("id")
+    .eq("email", email)
+    .single()
 
-  if (existing.length > 0) {
+  if (existingUser) {
     return NextResponse.json(
       { message: "Email already registered" },
       { status: 409 }
     )
   }
 
-  // ✅ hash password
-  const hashed = await bcrypt.hash(password, 10)
+  /* ================= HASH PASSWORD ================= */
+  const hashedPassword = await bcrypt.hash(password, 10)
 
-  // ✅ insert
-  await db.query(
-    "INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, ?)",
-    [name, email, hashed, "user"]
-  )
+  /* ================= INSERT USER ================= */
+  const { error } = await supabaseAdmin.from("users").insert({
+    name,
+    email,
+    password: hashedPassword,
+    role: "user"
+  })
 
-  return NextResponse.json({ message: "User registered" })
+  if (error) {
+    return NextResponse.json(
+      { message: error.message },
+      { status: 500 }
+    )
+  }
+
+  return NextResponse.json({ message: "User registered" }, { status: 201 })
 }

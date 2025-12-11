@@ -1,69 +1,88 @@
-"use client"
-import Link from "next/link";
+"use client";
+
 import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X } from "lucide-react";
+import Link from "next/link";
+import { Squeeze as Hamburger } from "hamburger-react";
+import { TbMapSearch } from "react-icons/tb";
 
-export default function SiteHeader() {
-  const [open, setOpen] = useState(false);
-
-  const nav = [
-    { name: "Home", path: "/" },
-    { name: "Dashboard", path: "/dashboards" },
-  ];
+export default function CustomNav() {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <header className="fixed top-0 left-0 w-full h-[10vh] bg-blue-200/70 backdrop-blur-md flex items-center justify-between px-6 md:px-10 z-50">
-      {/* Logo */}
-      <motion.div
-        initial={{ opacity: 0, y: -10 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="text-lg font-semibold"
-      >
-        MySite
-      </motion.div>
+    <>
+      <header className="px-4 px-6 md:px-8 py-6 fixed top-4 left-4 right-4 z-50 backdrop-blur-md bg-white/60 border border-neutral-300 flex items-center justify-between h-[3rem]">
 
-      {/* Desktop Nav */}
-      <nav className="hidden md:flex gap-4">
-        {nav.map((item) => (
-          <Link
-            key={item.name}
-            href={item.path}
-            className="px-4 py-2 rounded-xl hover:bg-black hover:text-white transition"
+        <nav className="hidden w-full md:flex justify-between gap-2 p-2 rounded-xl items-center gap-6 text-md font-medium text-gray">
+          <div className="flex gap-6">
+          {/* <Link
+            href="/"
+            className="hover:text-[#ff4757] hover:underline transition"
           >
-            {item.name}
+            Our Story
           </Link>
-        ))}
-      </nav>
-
-      {/* Mobile Toggle */}
-      <button onClick={() => setOpen(!open)} className="md:hidden">
-        {open ? <X size={28} /> : <Menu size={28} />}
-      </button>
-
-      {/* Mobile Menu */}
-      <AnimatePresence>
-        {open && (
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.2 }}
-            className="absolute top-[10vh] left-0 w-full bg-blue-200/90 backdrop-blur-lg flex flex-col gap-3 py-4 px-6 md:hidden shadow-lg"
+          <Link
+            href="/date"
+            className="hover:text-[#ff4757] hover:underline transition"
           >
-            {nav.map((item) => (
-              <Link
-                key={item.name}
-                href={item.path}
-                onClick={() => setOpen(false)}
-                className="px-4 py-2 rounded-lg hover:bg-black hover:text-white transition"
-              >
-                {item.name}
-              </Link>
-            ))}
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </header>
+            Date
+          </Link> */}
+          </div>
+          <div className="flex gap-6">
+          <Link
+            href="/register"
+            className="hover:text-[#ff4757] hover:underline transition"
+          >
+            Register
+          </Link>
+          <Link href="/login" className="hover:text-[#ff4757] transition">
+            Login
+          </Link>
+          <Link
+            href="/dashboard"
+            className="hover:text-[#ff4757] hover:underline transition"
+          >
+            Dashboard
+          </Link>
+          </div>
+        </nav>
+
+        <div className="md:hidden">
+          <Hamburger toggled={sidebarOpen} toggle={setSidebarOpen} size={20} />
+        </div>
+      </header>
+
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black/30 backdrop-blur-sm z-40"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
+      <aside
+        className={`fixed top-25 right-0 w-1/2 max-w-xs bg-white border border-gray-300 rounded-md shadow-xl z-50 transform transition-transform duration-500 ease-in-out ${
+          sidebarOpen ? "translate-x-0" : "translate-x-full"
+        }`}
+      >
+        <div className="p-6 space-y-4">
+          <h3 className="text-xl font-bold flex items-center gap-2 text-[#2f3542]">
+            <TbMapSearch size={20} /> Navigate
+          </h3>
+          <nav className="flex flex-col gap-4 text-[#2f3542] font-medium">
+            <Link href="/" className="hover:text-[#ff4757] transition">
+              Our Story
+            </Link>
+            <Link href="/date" className="hover:text-[#ff4757] transition">
+              Date
+            </Link>
+            <Link href="/locations" className="hover:text-[#ff4757] transition">
+              Locations
+            </Link>
+            <Link href="/present" className="hover:text-[#ff4757] transition">
+              Present
+            </Link>
+          </nav>
+        </div>
+      </aside>
+    </>
   );
 }

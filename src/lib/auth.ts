@@ -1,9 +1,8 @@
-// src/lib/auth.ts
 import "server-only"
 import type { NextAuthOptions } from "next-auth"
 import CredentialsProvider from "next-auth/providers/credentials"
 import bcrypt from "bcryptjs"
-import db from "@/lib/db"
+import { supabaseAdmin } from "@/lib/supabase" 
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -20,17 +19,20 @@ export const authOptions: NextAuthOptions = {
           return null
         }
 
-        // ✅ 1. ambil user dari DB
-        const [rows]: any = await db.query(
-          "SELECT id, email, password, name, role FROM users WHERE email = ?",
-          [credentials.email]
-        )
+        /* ========================
+           ✅ 1. Ambil user dari Supabase
+        ======================== */
+        const { data: user, error } = await supabaseAdmin
+          .from("users")
+          .select("id, email, password, name, role")
+          .eq("email", credentials.email)
+          .single()
 
-        if (rows.length === 0) return null
+        if (error || !user) return null
 
-        const user = rows[0]
-
-        // ✅ 2. compare password hash (bcrypt)
+        /* ========================
+           ✅ 2. Compare bcrypt hash
+        ======================== */
         const isValid = await bcrypt.compare(
           credentials.password,
           user.password
@@ -38,9 +40,11 @@ export const authOptions: NextAuthOptions = {
 
         if (!isValid) return null
 
-        // ✅ 3. return user → masuk JWT
+        /* ========================
+           ✅ 3. Return user → JWT
+        ======================== */
         return {
-          id: String(user.id),
+          id: user.id,
           email: user.email,
           name: user.name,
           role: user.role
@@ -51,11 +55,10 @@ export const authOptions: NextAuthOptions = {
 
   session: {
     strategy: "jwt",
-    maxAge: 60 * 5 // 5 menit ✅
+    maxAge: 60 * 30 // 5 menit
   },
 
   callbacks: {
-    // ✅ JWT PERTAMA KALI LOGIN
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id
@@ -64,7 +67,6 @@ export const authOptions: NextAuthOptions = {
       return token
     },
 
-    // ✅ SESSION YANG DIPAKAI DI PAGE
     async session({ session, token }) {
       if (session.user) {
         session.user.id = token.id as string
@@ -80,3 +82,5 @@ export const authOptions: NextAuthOptions = {
 
   secret: process.env.NEXTAUTH_SECRET
 }
+
+

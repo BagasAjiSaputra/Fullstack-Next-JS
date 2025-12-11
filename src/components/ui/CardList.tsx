@@ -35,7 +35,7 @@ export default function CardList() {
   }
 
   return (
-    <div className="min-h-screen bg-white flex items-center justify-start px-10 py-5 border">
+    <div className="min-h-screen w-full bg-white flex items-center justify-center px-10 py-5">
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 max-w-screen-lg w-full">
         {list.map((item) => (
           <div
@@ -66,6 +66,7 @@ export default function CardList() {
                 </button>
               </div>
             </div>
+            
           </div>
         ))}
       </div>

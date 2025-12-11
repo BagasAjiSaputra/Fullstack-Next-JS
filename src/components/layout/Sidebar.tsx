@@ -1,69 +1,48 @@
-"use client"
+"use client";
+
+import { motion } from "framer-motion";
+import { Home, LayoutDashboard, Settings, LogOut } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X } from "lucide-react";
 
-export default function SiteHeader() {
-  const [open, setOpen] = useState(false);
-
-  const nav = [
-    { name: "Home", path: "/" },
-    { name: "Dashboard", path: "/dashboard" },
+export default function Sidebar() {
+  const menu = [
+    { name: "Home", href: "/dashboard", icon: Home },
+    { name: "Dashboard", href: "/dashboard/overview", icon: LayoutDashboard },
+    { name: "Settings", href: "/dashboard/settings", icon: Settings },
   ];
 
   return (
-    <header className="fixed top-0 left-0 w-full h-[10vh] bg-blue-200/70 backdrop-blur-md flex items-center justify-between px-6 md:px-10 z-50">
+    <motion.aside
+      initial={{ x: -40, opacity: 0 }}
+      animate={{ x: 0, opacity: 1 }}
+      transition={{ duration: 0.4 }}
+      className="h-screen w-64 bg-white border-r border-gray-200 p-6 flex flex-col"
+    >
       {/* Logo */}
-      <motion.div
-        initial={{ opacity: 0, y: -10 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="text-lg font-semibold"
-      >
-        MySite
-      </motion.div>
+      <div className="text-2xl font-bold mb-10">MyPanel</div>
 
-      {/* Desktop Nav */}
-      <nav className="hidden md:flex gap-4">
-        {nav.map((item) => (
-          <Link
-            key={item.name}
-            href={item.path}
-            className="px-4 py-2 rounded-xl hover:bg-black hover:text-white transition"
-          >
-            {item.name}
-          </Link>
-        ))}
+      {/* Menu */}
+      <nav className="flex flex-col gap-4 flex-1">
+        {menu.map((item, idx) => {
+          const Icon = item.icon;
+          return (
+            <Link
+              key={idx}
+              href={item.href}
+              className="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-100 transition"
+            >
+              <Icon size={20} />
+              <span>{item.name}</span>
+            </Link>
+          );
+        })}
       </nav>
 
-      {/* Mobile Toggle */}
-      <button onClick={() => setOpen(!open)} className="md:hidden">
-        {open ? <X size={28} /> : <Menu size={28} />}
+      {/* Logout Button */}
+      <button className="flex items-center gap-3 p-3 rounded-xl hover:bg-red-100 transition">
+        <LogOut size={20} />
+        Logout
       </button>
-
-      {/* Mobile Menu */}
-      <AnimatePresence>
-        {open && (
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.2 }}
-            className="absolute top-[10vh] left-0 w-full bg-blue-200/90 backdrop-blur-lg flex flex-col gap-3 py-4 px-6 md:hidden shadow-lg"
-          >
-            {nav.map((item) => (
-              <Link
-                key={item.name}
-                href={item.path}
-                onClick={() => setOpen(false)}
-                className="px-4 py-2 rounded-lg hover:bg-black hover:text-white transition"
-              >
-                {item.name}
-              </Link>
-            ))}
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </header>
+    </motion.aside>
   );
 }
