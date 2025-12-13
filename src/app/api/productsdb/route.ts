@@ -1,99 +1,124 @@
-import { NextResponse, NextRequest } from "next/server";
-import db from "@/lib/db";
-import fs from "fs";
-import path from "path";
+import { NextRequest, NextResponse } from "next/server";
+import { supabase, supabaseAdmin } from "@/lib/supabase"; // pakai lib kamu
 
 export async function GET() {
-  const [rows] = await db.query("SELECT * FROM products");
-  return NextResponse.json(rows);
+  const { data, error } = await supabase
+    .from("products")
+    .select("*")
+    .order("id", { ascending: false });
+
+  if (error)
+    return NextResponse.json({ error: error.message }, { status: 500 });
+
+  return NextResponse.json(data);
 }
 
 export async function POST(req: NextRequest) {
+  try {
+    const formData = await req.formData();
 
-  const formData = await req.formData();
+    const file = formData.get("image") as File;
+    const title = formData.get("title") as string;
+    const description = formData.get("description") as string;
 
-  const file = formData.get("image") as File;
-  const title = formData.get("title") as string;
-  const description = formData.get("description") as string;
+    if (!file || !title || !description) {
+      return NextResponse.json({ error: "Missing Fields" }, { status: 400 });
+    }
 
-  // Validasi Form Lengkap
-  if (!file || !title || !description) {
-    return NextResponse.json(
-      { error: "Missing Fields" },
-      { status: 400 }
-    );
-  };
+    /* =============================
+        UPLOAD FILE → SUPABASE STORAGE
+    ==============================*/
+    const ext = file.name.split(".").pop();
+    const fileName = `${Date.now()}.${ext}`;
 
-  // Buat Folder Jika Belum Ada
-  const pathImage = path.join(process.cwd(), "public/images");
-  if (!fs.existsSync(pathImage)) fs.mkdirSync(pathImage, { recursive: true });
+    const buffer = Buffer.from(await file.arrayBuffer());
 
-  // Nama + Tanggal Biar Gak Duplikat
-  const timestamp = Date.now();
-  const nameFile = `${timestamp}_${file.name}`;
-  const pathFile = path.join(pathImage, nameFile);
+    const { error: uploadErr } = await supabaseAdmin.storage
+      .from("products")
+      .upload(fileName, buffer, {
+        contentType: file.type,
+        upsert: false,
+      });
 
-  // Simpan Filenya cuy
-  const buffer = Buffer.from(await file.arrayBuffer());
-  fs.writeFileSync(pathFile, buffer);
+    if (uploadErr)
+      return NextResponse.json({ error: uploadErr.message }, { status: 500 });
 
-  // Path Image String
-  const url = `/images/${nameFile}`;
+    // Ambil Public URL
+    const { data: publicUrlData } = supabase.storage
+      .from("products")
+      .getPublicUrl(fileName);
 
-  // Insert SQL
-  const [result] = await db.query(
-    "INSERT INTO products (title, image, description) VALUES (?, ?, ?)",
-    [title, url, description]
-  );
+    const imageUrl = publicUrlData.publicUrl;
 
-  return NextResponse.json({
-    message: "Product Added !",
-    id: result,
-    image: url,
-  });
+    /* =============================
+        INSERT DATA → SUPABASE TABLE
+    ==============================*/
+    const { data, error } = await supabaseAdmin
+      .from("products")
+      .insert({
+        title,
+        description,
+        image: imageUrl,
+      })
+      .select();
 
-};
+    if (error)
+      return NextResponse.json({ error: error.message }, { status: 500 });
+
+    return NextResponse.json({
+      message: "Product Added!",
+      product: data[0],
+    });
+  } catch (err: any) {
+    return NextResponse.json({ error: err.message }, { status: 500 });
+  }
+}
 
 export async function PUT(req: NextRequest) {
   try {
     const { id, title, image, description } = await req.json();
 
-    if(!id) {
-      return NextResponse.json({ error : "Product ID Required !"}, {status : 400});
-    }
+    if (!id)
+      return NextResponse.json(
+        { error: "Product ID Required!" },
+        { status: 400 }
+      );
 
-    const [result] = await db.query(
-      "UPDATE products SET title = ?, image = ?, description = ? WHERE id = ?",
-      [title, image, description, id]
-    )
+    const { error } = await supabaseAdmin
+      .from("products")
+      .update({ title, image, description })
+      .eq("id", id);
 
-    return NextResponse.json({ message : "Product Updated !"});
+    if (error)
+      return NextResponse.json({ error: error.message }, { status: 500 });
 
-  } catch (err) {
-    return NextResponse.json(
-      { error: (err as Error).message },
-      { status: 500 }
-    )
+    return NextResponse.json({ message: "Product Updated!" });
+  } catch (err: any) {
+    return NextResponse.json({ error: err.message }, { status: 500 });
   }
-};
+}
 
-export async function DELETE( req : NextRequest) {
+export async function DELETE(req: NextRequest) {
   try {
-
-    const {searchParams} = new URL(req.url);
+    const { searchParams } = new URL(req.url);
     const id = searchParams.get("id");
 
-    if(!id) {
-      return NextResponse.json({ error: "Product ID Required"}, {status : 400});
-    }
+    if (!id)
+      return NextResponse.json(
+        { error: "Product ID Required" },
+        { status: 400 }
+      );
 
-    const [result] = await db.query(
-      "DELETE FROM products WHERE id = ?", [id]
-    );
+    const { error } = await supabaseAdmin
+      .from("products")
+      .delete()
+      .eq("id", id);
 
-    return NextResponse.json({ message : "Product Deleted !"});
+    if (error)
+      return NextResponse.json({ error: error.message }, { status: 500 });
 
-  } catch (err) {
-    return NextResponse.json({ error : (err as Error).message}, {status : 500});
+    return NextResponse.json({ message: "Product Deleted!" });
+  } catch (err: any) {
+    return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }

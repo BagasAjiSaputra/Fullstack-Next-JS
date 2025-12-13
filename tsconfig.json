@@ -29,6 +29,6 @@
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts",
     "**/*.mts"
-, "src/app/(site)/compres/page.tsx"  ],
+, "src/app/(site)/compres/page.tsx", "src/utils/limiter.js", "src/middleware.ts"  ],
   "exclude": ["node_modules"]
 }
